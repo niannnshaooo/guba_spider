@@ -5,15 +5,59 @@
 import logging
 import os
 
+import pymongo.errors
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
 from guba_spider.items import EastMoneyPostItem, EastmoneyCommentItem
 from scrapy import signals
 from scrapy.exporters import CsvItemExporter
+from pymongo.mongo_client import MongoClient
 
 class GubaSpiderPipeline:
     def process_item(self, item, spider):
         return item
+
+
+class MongoDBPipeline(object):
+    """保存爬虫数据到mongodb中"""
+
+    dbs = {
+        EastMoneyPostItem.__name__.lower(): 'post',
+        EastmoneyCommentItem.__name__.lower(): 'comment'
+    }
+
+    DB_URI = 'mongodb://admin:123456@192.168.1.102/admin'
+    DB_NAME = 'guba'
+
+    #
+    # def __init__(self, settings):
+    #     super().__init__(settings=settings)
+    #     self.DB_URI = settings.get('MONGO_DB_URI')
+    #     self.DB_NAME = settings.get('MONGO_DB_NAME')
+    #
+    # @classmethod
+    # def from_crawler(cls, crawler):
+    #     return cls(crawler.settings)
+
+    def open_spider(self, spider):
+        """spider处理数据前，调用该方法，此处主要打开数据库"""
+        self.client = MongoClient(self.DB_URI)
+        self.db = self.client[self.DB_NAME]
+
+    def close_spider(self, spider):
+        """spider关闭时，调用该方法，关闭数据库"""
+        self.client.close()
+
+    def process_item(self, item, spider):
+        collection = self.dbs[type(item).__name__.lower()]
+        # post = dict(item)
+        try:
+            self.db[collection].insert_one(dict(item))
+        except pymongo.errors.DuplicateKeyError as e:
+
+            pass
+        return item
+
 
 DATADIR = r'.'
 

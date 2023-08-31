@@ -11,6 +11,10 @@ from scrapy.utils.response import response_status_message
 from fake_useragent import UserAgent
 import time
 import random
+import base64
+import os
+import json
+
 
 
 # useful for handling different item types with a single interface
@@ -123,6 +127,10 @@ class RandomheaderDownloaderMiddleware:
 
 
 class ProxyMiddleware(object):
+    """
+    开源代理
+    https://github.com/jhao104/proxy_pool
+    """
     def __init__(self, settings):
         self.proxy_server_host = settings.get('PROXY_SERVER_HOST')
 
@@ -136,11 +144,39 @@ class ProxyMiddleware(object):
     def delete_proxy(self,proxy):
         requests.get("http://{}/delete/?proxy={}".format(self.proxy_server_host, proxy))
 
-
     def process_request(self, request, spider):
         proxy_server = self.get_proxy().get("proxy")
         logging.info('get proxy from pool : {} , {}'.format(proxy_server, request.url))
         request.meta["proxy"] = 'http://'+proxy_server
+
+
+class ABYProxyMiddleware(object):
+    """
+    阿布云代理中间件
+    """
+
+    def get_abyun_secret(self):
+        filename = os.path.join('.env', 'abyun_secret.json')
+        if not os.path.exists(filename):
+            raise FileNotFoundError('file not found {}'.format(filename))
+
+        data = json.load(open(filename))
+
+        return data['username'], data['password']
+
+    def __init__(self, settings):
+        self.proxy_server = 'http://http-dyn.abuyun.com:9020'
+        proxy_user, proxy_pass = self.get_abyun_secret()
+
+        self.proxy_auth = "Basic " + base64.urlsafe_b64encode(bytes((proxy_user + ":" + proxy_pass), "ascii")).decode("utf8")
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(crawler.settings)
+
+    def process_request(self, request, spider):
+        request.meta["proxy"] = self.proxy_server
+        request.headers["Proxy-Authorization"] = self.proxy_auth
 
 
 class GubaRetryMiddleware(RetryMiddleware, metaclass=BackwardsCompatibilityMetaclass):
@@ -155,7 +191,7 @@ class GubaRetryMiddleware(RetryMiddleware, metaclass=BackwardsCompatibilityMetac
         return cls(crawler.settings)
     
     def delete_proxy(self, proxy):
-        if proxy:
+        if self.proxy_server_host and proxy:
             requests.get("http://{}/delete/?proxy={}".format(self.proxy_server_host, proxy))
 
     def process_response(self, request, response, spider):
@@ -166,24 +202,6 @@ class GubaRetryMiddleware(RetryMiddleware, metaclass=BackwardsCompatibilityMetac
             # 删除该代理
             self.delete_proxy(request.meta.get('proxy', False))
             time.sleep(random.randint(3, 5))
-            self.logger.warning('response status error, delete proxy and retry...')
+            self.logger.warning('response status error, status:{} , {}'.format(response.status, response.url))
             return self._retry(request, reason, spider) or response
         return response
-
-        # if request.meta.get('dont_retry', False):
-        #     return response
-        #
-        # error_page_info = {}
-        # if hasattr(spider, 'error_page_info'):
-        #     error_page_info = spider.error_page_info
-        #
-        # self.retry_http_codes != set(error_page_info.get('error_status', set()))
-        # return self.check_error(request, response, spider, error_page_info)
-
-    # def process_exception(self, request, exception, spider):
-    #     if isinstance(exception, super.EXCEPTIONS_TO_RETRY) and not request.meta.get('dont_retry', False):
-    #         # 删除该代理
-    #         self.delete_proxy(request.meta.get('proxy', False))
-    #         time.sleep(random.randint(3, 5))
-    #         self.logger.warning('process exception, delete proxy and retry...')
-    #         return self._retry(request, exception, spider)

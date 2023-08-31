@@ -6,6 +6,8 @@
 #     https://docs.scrapy.org/en/latest/topics/settings.html
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
+import json
+import os.path
 
 LOG_LEVEL = 'INFO'
 
@@ -57,7 +59,8 @@ DOWNLOAD_DELAY = 0.5
 DOWNLOADER_MIDDLEWARES = {
     # 在Setting.py 文件中找到下载器中间件 并解除注释
    'guba_spider.middlewares.RandomheaderDownloaderMiddleware': 543,
-   'guba_spider.middlewares.ProxyMiddleware': 544,
+   'guba_spider.middlewares.ABYProxyMiddleware': 544,
+   # 'guba_spider.middlewares.ProxyMiddleware': 544,
    'guba_spider.middlewares.GubaRetryMiddleware': 550,
 }
 
@@ -70,8 +73,8 @@ DOWNLOADER_MIDDLEWARES = {
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   "guba_spider.pipelines.GubaPipeline": 300,
-   "guba_spider.pipelines.ExportPipeline": 400
+   "guba_spider.pipelines.GubaSpiderPipeline": 300,
+   "guba_spider.pipelines.MongoDBPipeline": 400
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -101,4 +104,8 @@ TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
 #代理服务器地址
-PROXY_SERVER_HOST = '192.168.1.100:5010'
+# PROXY_SERVER_HOST = '192.168.1.100:5010'
+
+
+MONGO_DB_URI = 'mongodb://guba:123456@192.168.1.102/admin'
+MONGO_DB_NAME = 'guba'

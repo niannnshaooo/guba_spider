@@ -1,13 +1,13 @@
 # Define here the models for your scraped items
 #
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/items.html
+# See documentation in = scrapy.Field()
+# https = scrapy.Field()//docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
 
 
-class GubaItem(scrapy.Item):
-    # define the fields for your item here like:
+class GubaItem(scrapy.Item) :
+    # define the fields for your item here like = scrapy.Field()
     # name = scrapy.Field()
     pass
 
@@ -17,9 +17,10 @@ class EastMoneyPostItem(scrapy.Item):
     股吧帖子基本信息
     """
 
-
+    _id = scrapy.Field()
     post_id = scrapy.Field()
     post_title = scrapy.Field()
+    post_content = scrapy.Field()
     stockbar_code = scrapy.Field()
     stockbar_name = scrapy.Field()
     stockbar_type = scrapy.Field()
@@ -28,7 +29,6 @@ class EastMoneyPostItem(scrapy.Item):
     user_extendinfos = scrapy.Field()
     post_click_count = scrapy.Field()
     post_forward_count = scrapy.Field()
-    post_comment_count = scrapy.Field()
     post_publish_time = scrapy.Field()
     post_last_time = scrapy.Field()
     post_type = scrapy.Field()
@@ -53,13 +53,105 @@ class EastMoneyPostItem(scrapy.Item):
     spec_column = scrapy.Field()
     cms_media_type = scrapy.Field()
     art_unique_url = scrapy.Field()
+    post_comment_count = scrapy.Field()
+    # post_user = scrapy.Field()
+    # post_guba = scrapy.Field()
 
-    def __init__(self, *args, **kwargs):
+
+    # post_id = scrapy.Field()
+    # post_user = scrapy.Field()
+    # post_guba = scrapy.Field()
+    # post_title = scrapy.Field()
+    # post_content = scrapy.Field()
+    # post_abstract = scrapy.Field()
+    # post_publish_time = scrapy.Field()
+    # post_last_time = scrapy.Field()
+    # post_display_time = scrapy.Field()
+    # post_ip = scrapy.Field()
+    # post_state = scrapy.Field()
+    # post_checkState = scrapy.Field()
+    # post_click_count = scrapy.Field()
+    # post_forward_count = scrapy.Field()
+    # post_comment_count = scrapy.Field()
+    # post_comment_authority = scrapy.Field()
+    # post_like_count = scrapy.Field()
+    # post_is_like = scrapy.Field()
+    # post_is_collected = scrapy.Field()
+    # post_type = scrapy.Field()
+    # post_source_id = scrapy.Field()
+    # post_top_status = scrapy.Field()
+    # post_status = scrapy.Field()
+    # post_from = scrapy.Field()
+    # post_from_num = scrapy.Field()
+    # post_pdf_url = scrapy.Field()
+    # post_has_pic = scrapy.Field()
+    # has_pic_not_include_content = scrapy.Field()
+    # post_pic_url = scrapy.Field()
+    # source_post_id = scrapy.Field()
+    # source_post_state = scrapy.Field()
+    # source_post_user_id = scrapy.Field()
+    # source_post_user_nickname = scrapy.Field()
+    # source_post_user_type = scrapy.Field()
+    # source_post_user_is_majia = scrapy.Field()
+    # source_post_pic_url = scrapy.Field()
+    # source_post_title = scrapy.Field()
+    # source_post_content = scrapy.Field()
+    # source_post_abstract = scrapy.Field()
+    # source_post_ip = scrapy.Field()
+    # source_post_type = scrapy.Field()
+    # source_post_guba = scrapy.Field()
+    # post_video_url = scrapy.Field()
+    # source_post_video_url = scrapy.Field()
+    # source_post_source_id = scrapy.Field()
+    # code_name = scrapy.Field()
+    # product_type = scrapy.Field()
+    # v_user_code = scrapy.Field()
+    # source_click_count = scrapy.Field()
+    # source_comment_count = scrapy.Field()
+    # source_forward_count = scrapy.Field()
+    # source_publish_time = scrapy.Field()
+    # source_user_is_majia = scrapy.Field()
+    # ask_chairman_state = scrapy.Field()
+    # selected_post_code = scrapy.Field()
+    # selected_post_name = scrapy.Field()
+    # selected_relate_guba = scrapy.Field()
+    # ask_question = scrapy.Field()
+    # ask_answer = scrapy.Field()
+    # qa = scrapy.Field()
+    # fp_code = scrapy.Field()
+    # codepost_count = scrapy.Field()
+    # extend = scrapy.Field()
+    # post_pic_url2 = scrapy.Field()
+    # source_post_pic_url2 = scrapy.Field()
+    # relate_topic = scrapy.Field()
+    # source_extend = scrapy.Field()
+    # digest_type = scrapy.Field()
+    # source_post_atuser = scrapy.Field()
+    # post_inshare_count = scrapy.Field()
+    # repost_state = scrapy.Field()
+    # post_atuser = scrapy.Field()
+    # reptile_state = scrapy.Field()
+    # post_add_list = scrapy.Field()
+    # extend_version = scrapy.Field()
+    # post_add_time = scrapy.Field()
+    # post_modules = scrapy.Field()
+    # post_speccolumn = scrapy.Field()
+    # post_ip_address = scrapy.Field()
+    # source_post_ip_address = scrapy.Field()
+    # post_mod_time = scrapy.Field()
+    # post_mod_count = scrapy.Field()
+    # allow_likes_state = scrapy.Field()
+    # system_comment_authority = scrapy.Field()
+    # limit_reply_user_auth = scrapy.Field()
+
+    def __init__(self, *args, **kwargs) :
         super().__init__(*args, **kwargs)
+        self['_id'] = str(self['post_id'])+'_'+self['stockbar_code']
 
 
-class EastmoneyCommentItem(scrapy.Item):
+class EastmoneyCommentItem(scrapy.Item) :
 
+    _id = scrapy.Field()
     child_replys = scrapy.Field()
     fake_child_replys = scrapy.Field()
     reply_count = scrapy.Field()
@@ -88,12 +180,14 @@ class EastmoneyCommentItem(scrapy.Item):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self['_id'] = self['reply_id']
 
 
 
-class EastmoneySpiderItem(scrapy.Item):
-    # define the fields for your item here like:
+class EastmoneySpiderItem(scrapy.Item) :
+    # define the fields for your item here like = scrapy.Field()
     # name = scrapy.Field()
+    code = scrapy.Field()
     stockname = scrapy.Field()
     home_page = scrapy.Field()
     forward = scrapy.Field()
@@ -104,3 +198,4 @@ class EastmoneySpiderItem(scrapy.Item):
     fb_time = scrapy.Field()
     title = scrapy.Field()
     content = scrapy.Field()
+    page = scrapy.Field()
